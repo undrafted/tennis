@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  The best game in the world:
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+  <script>
+    var canvas;
+    var canvasContext;
+    var ball = {
+      x: 50,
+      y: 0,
+      speed: 50
+    };
+
+    window.onload = function() {
+      canvas = document.getElementById("gameCanvas");
+      canvasContext = canvas.getContext("2d");
+
+      var framesPerSecond = 30;
+      setInterval(renderGame, 1000 / framesPerSecond);
+    };
+
+    function renderGame() {
+      moveEverything();
+      drawEverything();
+    }
+
+    function moveEverything() {
+      ball.x += ball.speed;
+
+      if (ball.x > canvas.width || ball.x < 0) {
+        // reverse ball direction if it hits the canvas boundary
+        ball.speed = -ball.speed;
+      }
+    }
+
+    function drawEverything() {
+      // draw the game area
+      colorRect(0, 0, canvas.width, canvas.height, "black");
+      // draw the left pad
+      colorRect(0, 210, 10, 100, "white");
+      // draw the ball
+      colorRect(ball.x, 280, 10, 10, "red");
+    }
+
+    function colorRect(leftX, topY, width, height, drawColor) {
+      canvasContext.fillStyle = drawColor;
+      canvasContext.fillRect(leftX, topY, width, height);
+    }
+  </script>
+</html>
