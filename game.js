@@ -3,7 +3,7 @@ var canvasContext;
 var ball = {
   x: 50,
   y: 50,
-  speedX: 5,
+  speedX: 20,
   speedY: 4
 };
 
@@ -11,7 +11,12 @@ var leftPaddle = {
   y: 250
 };
 
+var rightPaddle = {
+  y: 250
+};
+
 const PADDLE_HEIGHT = 100;
+const PADDLE_WIDTH = 10;
 
 function calculateMousePos(evt) {
   var rect = canvas.getBoundingClientRect();
@@ -33,9 +38,8 @@ window.onload = function() {
 
   canvas.addEventListener("mousemove", function(evt) {
     var mousePos = calculateMousePos(evt);
-    console.log(mousePos);
     // set left Paddle Y position (mouse is at the center of paddle)
-    leftPaddle.y = mousePos.y - PADDLE_HEIGHT / 2;
+    rightPaddle.y = mousePos.y - PADDLE_HEIGHT / 2;
   });
 };
 
@@ -44,14 +48,22 @@ function renderGame() {
   drawEverything();
 }
 
+function checkBallCollision(paddle) {
+  if (ball.y > paddle.y && ball.y < paddle.y + PADDLE_HEIGHT) {
+    ball.speedX = -ball.speedX;
+  } else {
+    ballReset();
+  }
+}
+
 function moveEverything() {
   ball.x += ball.speedX;
   ball.y += ball.speedY;
 
-  if (ball.x > canvas.width || ball.x < 0) {
-    // reverse ball direction if it hits the canvas boundary
-    ball.speedX = -ball.speedX;
+  if (ball.x < 0 || ball.x > canvas.width) {
+    checkBallCollision(ball.x < 0 ? leftPaddle : rightPaddle);
   }
+
   if (ball.y > canvas.height || ball.y < 0) {
     // reverse ball direction if it hits the canvas boundary
     ball.speedY = -ball.speedY;
@@ -62,9 +74,28 @@ function drawEverything() {
   // draw the game area
   colorRect(0, 0, canvas.width, canvas.height, "black");
   // draw the left paddle
-  colorRect(0, leftPaddle.y, 10, PADDLE_HEIGHT, "white");
+  colorRect(0, leftPaddle.y, PADDLE_WIDTH, PADDLE_HEIGHT, "white");
+  // draw the right paddle
+  colorRect(
+    canvas.width - PADDLE_WIDTH,
+    rightPaddle.y,
+    PADDLE_WIDTH,
+    PADDLE_HEIGHT,
+    "white"
+  );
   // draw the ball
   colorCircle(ball.x, ball.y, 10, "white");
+}
+
+// if the ball goes out of bounds (the paddles didn't hit it),
+// reset ball position to middle and reverse its direction
+function ballReset() {
+  ball = {
+    x: canvas.width / 2,
+    y: canvas.height / 2,
+    speedX: -ball.speedX,
+    speedY: ball.speedY
+  };
 }
 
 function colorRect(leftX, topY, width, height, drawColor) {
