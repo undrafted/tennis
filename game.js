@@ -8,11 +8,13 @@ var ball = {
 };
 
 var leftPaddle = {
-  y: 250
+  y: 250,
+  score: 0
 };
 
 var rightPaddle = {
-  y: 250
+  y: 250,
+  score: 0
 };
 
 const PADDLE_HEIGHT = 100;
@@ -39,7 +41,7 @@ window.onload = function() {
   canvas.addEventListener("mousemove", function(evt) {
     var mousePos = calculateMousePos(evt);
     // set left Paddle Y position (mouse is at the center of paddle)
-    rightPaddle.y = mousePos.y - PADDLE_HEIGHT / 2;
+    leftPaddle.y = mousePos.y - PADDLE_HEIGHT / 2;
   });
 };
 
@@ -52,11 +54,29 @@ function checkBallCollision(paddle) {
   if (ball.y > paddle.y && ball.y < paddle.y + PADDLE_HEIGHT) {
     ball.speedX = -ball.speedX;
   } else {
+    if (paddle === leftPaddle) {
+      rightPaddle.score++;
+    } else {
+      leftPaddle.score++;
+    }
     ballReset();
   }
 }
 
+// very advanced AI algorithm
+function computerMovement() {
+  var rightPaddleYCenter = rightPaddle.y + PADDLE_HEIGHT / 2;
+  if (rightPaddleYCenter < ball.y - 35) {
+    rightPaddle.y += 6;
+  } else if (rightPaddleYCenter > ball.y + 35) {
+    rightPaddle.y -= 6;
+  }
+}
+
 function moveEverything() {
+  // let the right paddle (some kind of ai shit) chase the ball
+  computerMovement();
+
   ball.x += ball.speedX;
   ball.y += ball.speedY;
 
@@ -85,6 +105,14 @@ function drawEverything() {
   );
   // draw the ball
   colorCircle(ball.x, ball.y, 10, "white");
+
+  // display scores
+  canvasContext.fillText(`Player 1 Score: ${leftPaddle.score}`, 100, 100);
+  canvasContext.fillText(
+    `Player 2 Score: ${rightPaddle.score}`,
+    canvas.width - 100,
+    100
+  );
 }
 
 // if the ball goes out of bounds (the paddles didn't hit it),
